@@ -8,5 +8,5 @@ La idea base del proyecto ha sido la de utilizar una lista de las mejores pelíc
 facilitase más detalles sobre cada título. 
 
 2. PROCESO DE TRANSFORMACIÓN
-  A. FUENTE DE DATOS
+A. FUENTE DE DATOS
   
