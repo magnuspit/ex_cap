@@ -3,10 +3,10 @@ MEMORIA - WEB SEMÁNTICA Y DATOS ENLAZADOS
 1. INTRODUCCIÓN
 
 El propósito de este trabajo es desarrollar y explicar el proceso de enlazar datos de acuerdo a lo aprendido a lo largo de la asignatura. Una vez los datos estén adecuadamente 
-enlazados se comentará también cómo se podrían explotar.
+enlazados se comentará también cómo se podrían explotar. En todo momento, se ha utilizado la herramienta OpenRefine en su variante LODRefine.
 
 La idea base del proyecto ha sido la de utilizar una lista de las mejores películas de la historia con la idea de enlazarlas sobre una base de conocimiento existente que 
-facilitase más detalles sobre cada título. Se simplificará el trabajo (volumen de datos) para ganar eficiencia, pero se pondrá especial atención en que todos los puntos de la memoria sean satisfechos.
+facilitase más detalles sobre cada título. Se simplificará el trabajo (se considerarán solo las películas de las últimas dos décadas) para ganar eficiencia, pero se pondrá especial atención en que todos los puntos de la memoria sean satisfechos.
 
 2. PROCESO DE TRANSFORMACIÓN
 
@@ -28,7 +28,65 @@ El conjunto de datos consiste en 10 columnas y 1.0001 registros, siendo el prime
 - Genre: el género al que pertenece la película. Puede ser multigénero separado por "-".
 - Colour: indica si es en color (Col), blanco y negro (BW) o ambos (Col-BW).
 
-Con respecto a la licencia de los datos, la web no especificaba el tipo de licencia bajo el que podían ser usadas las listas. Se ha contactado al administrador para aclarar este punto. Se actualizará en cuanto responda.
+Con respecto a la licencia de los datos, la web no especificaba el tipo de licencia bajo el que podían ser usadas las listas. Se ha contactado al administrador (Bill Georgaris) para aclarar este punto. Se actualizará en cuanto responda, pero por ahora se han tratado los datos como si tuvieran licencia CC-0, esto es Creative Commons Public domain, que implica que los datos de pueden utilizar libremente y que el autor cede sus derechos de uso completamente.
 
 C. ESTRATEGIA DE NOMBRADO
+
+Se seguirá la siguiente:
+- Dominio: dado que no se planea publicar, se ha tomado: http:/example.com.
+- Forma de las URIs: # para términos ontológicos y / para individuos.
+- Ruta para individuos (las películas): http:/example.com/movies/
+- Patrón para individuos: http:/example.com/movies/<título de la película>
+- Ruta para términos ontológicos (propiedades - en este caso año de lanzamiento): http://example/ontology/year#
+- Patrón para términos ontológicos: http://example/ontology/year#<año de estreno>
+
+D. VOCABULARIO
+
+Solo se ha considerado una propiedad (presente en la lista de datos original), el año de estreno. Para poder añadirla al vocabulario, se ha procedido de la siguiente manera:
+- Se ha creado un nuevo Prefix denominado "onto" para poder añadir términos ontológicos.
+- El predicado de cada película se ha definido como onto:releasedIn, que tendrá como objeto el año de estreno.
+
+E. PROCESO DE TRANSFORMACIÓN
+
+- En primer lugar se ha procedido a un filtrado de datos utilizado la herramienta "Facet > Numeric facet" de LODRefine sobre la columna "Year" para seleccionar y eliminar todas las películas anteriores al año 2000. Ver An1.jpg en la carpeta de anexos.
+- A continuación se han eliminado todas las columnas diferentes a "Year" y "Title". La idea es que la información de cada una de las películas provenga del enlazado con una base de conocimiento. 
+- Para facilitar el siguiente proceso de reconciling se han transformado los datos de la columna "Title", reemplazando ',The' y ',A' por '' (espacio vacío). Esta operación se ha realizado dos veces (una sobre cada artículo) sobre la columna "Title" con la herramienta "Edit cells > Transform" utilizando las siguientes expresiones de lenguaje GREL: value.replace(',The', '') y value.replace(',A', ''). Ver An2.jpg en la carpeta de anexos.
+
+F. ENLAZADO
+
+Siguiendo los ejemplos del curso y que la extensión de DBpedia ya estaba incluida en LODRefine se pensó en utilizar esta base de conocimiento para enlazar los títulos de las películas. El resultado al utilizar la herramienta "Reconcile > Start reconciling" y seleccionar el servicio "DBpedia" y el type "dbo:Film" fue el siguiente:
+- Antes de eliminar ", The" y ", A", 65 títulos fueron identificados correctamente. Para 28 de ellos, no se encontró equivalencia.
+- Al eliminar los artículos, la situación mejoró, pudiéndose identificar 70 títulos. El problema se dio al intentar identificar los 23 títulos restantes, siendo inviable su clasificación manual ya sea por falta de respuesta de DBpedia o de opciones correctas.
+
+Antes de continuar, después de investigar un poco sobre servicios activos, se decidió gestionar el mismo proceso con la base de conocimiento Wikidata. Como primer paso, se añadió el servicio a la lista predifinida. Para ello, dentro de la pantalla "Reconcile > Start reconciling > Add standard Service" se utilizó https://wikidata.reconci.link/en/api. A continuación se seleccionó el type: Film (Q11424). Ver An3.jpg.
+- Con esta opción se consiguiço identificar sin problema los 93 títulos, aunque en algún caso hubo que gestionar el proceso de match manualmente porque la primera opción propuesta no era la adecuada.
+
+Al no haber utilizado DBpedia, la extracción de enlaces no estaba asistida por LODRefine, por ello hubo que consultar la documentación de Wikidata (accesible aquí: https://wikidata.reconci.link/) para ver cómo poder generar los enlaces en una columna. Se detalla a continuación el proceso seguido:
+- Lo primero es añadir una columna basada en la que se han enlazado los datos utilizando sobre la columna Title "Edit column > Add column based on this column".
+- Una vez dentro, se añade la expresión en GREL cell.recon.match.id que nos dará las referencias únicas de Wikidata (del tipo QXXXXXX). Ver An4.jpg
+- Se nombra a la columna como WikiRef.
+- Con la herramienta "Edit cells > Transform" y la expresión GREL: 'https://www.wikidata.org/wiki/'+value las celdas quedan transformadas a los enlaces de Wikidata. Ver An5.jpg.
+- Finalmente se decidió cambiar el nombre de la columna Title a "Film".
+
+El último paso ha consistido en utilizar la extensión RDF (ya integrada en LODRefine) para editar la estructura del RDF, generar los enlaces correctamente y poder exportarlos en formato Turtle. Se detalla el proceso a continuación:
+- Se utiliza la herramienta "Edit RDF Skeletonn" para definir dos tripletas de acuerdo a los apartados anteriores 2C y 2D. Ver An6.jpg.
+- Se comprueba que los enlaces generados son correctos en "Preview". Ver An7.jpg.
+- Finalmente, se genera el archivo Turtle a través de "Export > RDF as Turtle".
+- Se nombra al archivo como "Films_S21". Accesible en la carpeta Anexos.
+
+E. PUBLICACIÓN
+
+No se ha procedido a publicar los datos enlazados.
+
+3. APLICACIÓN Y EXPLOTACIÓN
+
+
+4. CONCLUSIONES
+
+
+5. BIBLIOGRAFÍA
+
+
+
+
 
