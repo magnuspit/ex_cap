@@ -80,11 +80,24 @@ No se ha procedido a publicar los datos enlazados.
 
 3. APLICACIÓN Y EXPLOTACIÓN
 
+Aunque se ha trabajado con un número de datos y propiedades muy limitado, el enlazado con la base de conocimiento Wikidata tiene las siguientes ventajas:
+- Muchas de las películas en la lista no son precisamente mainstream, por lo que el enlazado con Wikidata proporciona una sinopsis, director, enlaces a trailers, fotografías, etc. En definitiva, sirve para ampliar considerablemente la información sobre cada título y decidir si la película resulta de interés.
+- Igualmente, al haber generado grafos RDF, se ha facilitado la posibilidad de hacer consultas tipo SPARQL para explotar los datos enlazados.
+
+A continuación se presenta un ejemplo de SPARQL query, que posibilitaría filtrar aquellas 
 
 4. CONCLUSIONES
 
+Partiendo de un conjunto de datos de películas plano y sin demasiada información sobre cada título, se ha conseguido enlazar cada título con una base de conocimiento (Qikidata) que aporta muchísima más información sobre cada una. Igualmente, dicho trabajo ha hecho posible realizar consultas para que cada usuario filtre la información que desea obtener fácilmente.
+
+La principal conclusión es que se han demostrado las ventajas de aplicar conceptos de web semántica y enlazado de datos para explotar conjuntos de datos.
 
 5. BIBLIOGRAFÍA
+
+- El material de la asignatura y lecturas recomendadas.
+- LODRefine (descarga): https://sourceforge.net/projects/lodrefine/
+- Documentación de Wikidata para OpenRefine: https://wikidata.reconci.link/
+- Web desde la que se han descargado los datos: https://www.theyshootpictures.com
 
 
 
