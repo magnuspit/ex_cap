@@ -1,6 +1,6 @@
-MEMORIA - WEB SEMÁNTICA Y DATOS ENLAZADOS
+# MEMORIA - WEB SEMÁNTICA Y DATOS ENLAZADOS
 
-1. INTRODUCCIÓN
+## 1. INTRODUCCIÓN
 
 El propósito de este trabajo es desarrollar y explicar el proceso de enlazar datos de acuerdo a lo aprendido a lo largo de la asignatura. Una vez los datos estén adecuadamente 
 enlazados se comentará también cómo se podrían explotar. En todo momento, se ha utilizado la herramienta OpenRefine en su variante LODRefine.
@@ -8,13 +8,13 @@ enlazados se comentará también cómo se podrían explotar. En todo momento, se
 La idea base del proyecto ha sido la de utilizar una lista de las mejores películas de la historia con la idea de enlazarlas sobre una base de conocimiento existente que 
 facilitase más detalles sobre cada título. Se simplificará el trabajo (se considerarán solo las películas de las últimas dos décadas) para ganar eficiencia, pero se pondrá especial atención en que todos los puntos de la memoria sean satisfechos.
 
-2. PROCESO DE TRANSFORMACIÓN
+## 2. PROCESO DE TRANSFORMACIÓN
 
-A. FUENTE DE DATOS
+### A. FUENTE DE DATOS
 
 Se ha utilizado la lista el ranking TSPDT’s 1,000 Greatest Films que se puede encontrar en el siguiente enlace en formato Microsoft Excel: https://www.theyshootpictures.com/resources/1000GreatestFilms.xls (se ha incluido en la carpeta "Anexos"). Esta lista se actualiza con carácter anual y es utilizada frecuentemente por los medios de comunicación.
 
-B. ANÁLISIS DE LOS DATOS
+### B. ANÁLISIS DE LOS DATOS
 
 El conjunto de datos consiste en 10 columnas y 1.0001 registros, siendo el primero una cabecera. A continuación se muestra un resumen de la información de cada columna:
 - Pos: muestra la posición numérica de la película en un rango de 1 a 1000. 
@@ -30,7 +30,7 @@ El conjunto de datos consiste en 10 columnas y 1.0001 registros, siendo el prime
 
 Con respecto a la licencia de los datos, la web no especificaba el tipo de licencia bajo el que podían ser usadas las listas. Se ha contactado al administrador (Bill Georgaris) para aclarar este punto. Se actualizará en cuanto responda, pero por ahora se han tratado los datos como si tuvieran licencia CC-0, esto es Creative Commons Public domain, que implica que los datos de pueden utilizar libremente y que el autor cede sus derechos de uso completamente.
 
-C. ESTRATEGIA DE NOMBRADO
+### C. ESTRATEGIA DE NOMBRADO
 
 Se seguirá la siguiente:
 - Dominio: dado que no se planea publicar, se ha tomado: http:/example.com.
@@ -40,19 +40,19 @@ Se seguirá la siguiente:
 - Ruta para términos ontológicos (propiedades - en este caso año de lanzamiento): http://example/ontology/year#
 - Patrón para términos ontológicos: http://example/ontology/year#<año de estreno>
 
-D. VOCABULARIO
+### D. VOCABULARIO
 
 Solo se ha considerado una propiedad (presente en la lista de datos original), el año de estreno. Para poder añadirla al vocabulario, se ha procedido de la siguiente manera:
 - Se ha creado un nuevo Prefix denominado "onto" para poder añadir términos ontológicos.
 - El predicado de cada película se ha definido como onto:releasedIn, que tendrá como objeto el año de estreno.
 
-E. PROCESO DE TRANSFORMACIÓN
+### E. PROCESO DE TRANSFORMACIÓN
 
 - En primer lugar se ha procedido a un filtrado de datos utilizado la herramienta "Facet > Numeric facet" de LODRefine sobre la columna "Year" para seleccionar y eliminar todas las películas anteriores al año 2000. Ver An1.jpg en la carpeta de anexos.
 - A continuación se han eliminado todas las columnas diferentes a "Year" y "Title". La idea es que la información de cada una de las películas provenga del enlazado con una base de conocimiento. 
 - Para facilitar el siguiente proceso de reconciling se han transformado los datos de la columna "Title", reemplazando ',The' y ',A' por '' (espacio vacío). Esta operación se ha realizado dos veces (una sobre cada artículo) sobre la columna "Title" con la herramienta "Edit cells > Transform" utilizando las siguientes expresiones de lenguaje GREL: value.replace(',The', '') y value.replace(',A', ''). Ver An2.jpg en la carpeta de anexos.
 
-F. ENLAZADO
+### F. ENLAZADO
 
 Siguiendo los ejemplos del curso y que la extensión de DBpedia ya estaba incluida en LODRefine se pensó en utilizar esta base de conocimiento para enlazar los títulos de las películas. El resultado al utilizar la herramienta "Reconcile > Start reconciling" y seleccionar el servicio "DBpedia" y el type "dbo:Film" fue el siguiente:
 - Antes de eliminar ", The" y ", A", 65 títulos fueron identificados correctamente. Para 28 de ellos, no se encontró equivalencia.
@@ -74,40 +74,40 @@ El último paso ha consistido en utilizar la extensión RDF (ya integrada en LOD
 - Finalmente, se genera el archivo Turtle a través de "Export > RDF as Turtle".
 - Se nombra al archivo como "Films_S21". Accesible en la carpeta Anexos.
 
-E. PUBLICACIÓN
+### E. PUBLICACIÓN
 
 No se ha procedido a publicar los datos enlazados.
 
-3. APLICACIÓN Y EXPLOTACIÓN
+## 3. APLICACIÓN Y EXPLOTACIÓN
 
 Aunque se ha trabajado con un número de datos y propiedades muy limitado, el enlazado con la base de conocimiento Wikidata tiene las siguientes ventajas:
 - Muchas de las películas en la lista no son precisamente mainstream, por lo que el enlazado con Wikidata proporciona una sinopsis, director, enlaces a trailers, fotografías, etc. En definitiva, sirve para ampliar considerablemente la información sobre cada título y decidir si la película resulta de interés.
 - Igualmente, al haber generado grafos RDF, se ha facilitado la posibilidad de hacer consultas tipo SPARQL.
 
 A continuación se presenta un ejemplo de SPARQL query que se podría aplicar sobre los datos publicados en la que se busca como respuesta los títulos y año de las películas que se estrenaron durante la primera década del siglo XXI (2000-2010):
-
+```
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix onto: <http://example.com/ontology/year#> .
 SELECT  ?Title ?Year
-WHERE   { 
-<http://example.com/movies> rdf:Title ?Title .
-onto:releasedIn ?Year .
+WHERE  { 
+  <http://example.com/movies> rdf:Title ?Title .
+  onto:releasedIn ?Year .
 FILTER (?Year<2011 && ?Year>1999)
 }
+```
+## 4. CONCLUSIONES
 
-4. CONCLUSIONES
-
-Partiendo de un conjunto de datos de películas plano y sin demasiada información sobre cada título, se ha conseguido enlazar cada título con una base de conocimiento (Qikidata) que aporta muchísima más información sobre cada una. Igualmente, dicho trabajo ha hecho posible realizar consultas para que cada usuario filtre la información que desea obtener fácilmente.
+Partiendo de un conjunto de datos de películas plano y sin demasiada información sobre cada título, se ha conseguido enlazar cada título con una base de conocimiento (Wikidata) que aporta muchísima más información sobre cada una. Igualmente, dicho trabajo ha hecho posible realizar consultas para que cada usuario filtre la información que desea obtener fácilmente.
 
 La principal conclusión es que se han demostrado las ventajas de aplicar conceptos de web semántica y enlazado de datos para explotar conjuntos de datos.
 
-5. BIBLIOGRAFÍA
+## 5. BIBLIOGRAFÍA
 
 - El material de la asignatura y lecturas recomendadas.
 - LODRefine (descarga): https://sourceforge.net/projects/lodrefine/
 - Documentación de Wikidata para OpenRefine: https://wikidata.reconci.link/
 - Web desde la que se han descargado los datos: https://www.theyshootpictures.com
-- Guía SPARQL de w3.org: https://www.w3.org/2009/Talks/0615-qbe/
+- Guía y ejemplos de queries SPARQL de w3.org: https://www.w3.org/2009/Talks/0615-qbe/
 
 
 
