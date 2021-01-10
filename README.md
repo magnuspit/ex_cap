@@ -82,9 +82,18 @@ No se ha procedido a publicar los datos enlazados.
 
 Aunque se ha trabajado con un número de datos y propiedades muy limitado, el enlazado con la base de conocimiento Wikidata tiene las siguientes ventajas:
 - Muchas de las películas en la lista no son precisamente mainstream, por lo que el enlazado con Wikidata proporciona una sinopsis, director, enlaces a trailers, fotografías, etc. En definitiva, sirve para ampliar considerablemente la información sobre cada título y decidir si la película resulta de interés.
-- Igualmente, al haber generado grafos RDF, se ha facilitado la posibilidad de hacer consultas tipo SPARQL para explotar los datos enlazados.
+- Igualmente, al haber generado grafos RDF, se ha facilitado la posibilidad de hacer consultas tipo SPARQL.
 
-A continuación se presenta un ejemplo de SPARQL query, que posibilitaría filtrar aquellas 
+A continuación se presenta un ejemplo de SPARQL query que se podría aplicar sobre los datos publicados en la que se busca como respuesta los títulos y año de las películas que se estrenaron durante la primera década del siglo XXI (2000-2010):
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix onto: <http://example.com/ontology/year#> .
+SELECT  ?Title ?Year
+WHERE   { 
+<http://example.com/movies> rdf:Title ?Title .
+onto:releasedIn ?Year .
+FILTER (?Year<2011 && ?Year>1999)
+}
 
 4. CONCLUSIONES
 
@@ -98,6 +107,7 @@ La principal conclusión es que se han demostrado las ventajas de aplicar concep
 - LODRefine (descarga): https://sourceforge.net/projects/lodrefine/
 - Documentación de Wikidata para OpenRefine: https://wikidata.reconci.link/
 - Web desde la que se han descargado los datos: https://www.theyshootpictures.com
+- Guía SPARQL de w3.org: https://www.w3.org/2009/Talks/0615-qbe/
 
 
 
